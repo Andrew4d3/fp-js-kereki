@@ -55,12 +55,14 @@ practical limits to recursion
 ### Functions as first–class objects
 > For example, you can store a function in a variable, you can pass it to a function, you can print it out, and so on. This is really the key to doing FP: we will often be passing functions as parameters (to other functions) or returning a function as the result of a function call
 
-Example
+[Example](https://github.com/Andrew4d3/fp-js-kereki/blob/master/Chapter%201/firstclass.js)
 ### Recursion
-Example
+[Example](https://github.com/Andrew4d3/fp-js-kereki/blob/master/Chapter%201/recursion.js)
 ### Closures
-### Arrow Functions
+[Example](https://github.com/Andrew4d3/fp-js-kereki/blob/master/Chapter%201/closures.js)
+### Arrow Function
+[Example](https://github.com/Andrew4d3/fp-js-kereki/blob/master/Chapter%201/arrow.js)
 ### Spread
-Example
+[Example](https://github.com/Andrew4d3/fp-js-kereki/blob/master/Chapter%201/spread.js)
 > Using the spread operator helps write shorter, more concise code, and we will be taking
 advantage of it.
