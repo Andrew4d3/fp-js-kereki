@@ -1,0 +1,26 @@
+{
+  "name": "fp-js-kereki",
+  "version": "1.0.0",
+  "description": "Mastering Functional Programing - Book Notes",
+  "main": "null",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Andrew4d3/fp-js-kereki.git"
+  },
+  "keywords": [
+    "notes",
+    "book"
+  ],
+  "author": "Andrew4d3",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Andrew4d3/fp-js-kereki/issues"
+  },
+  "homepage": "https://github.com/Andrew4d3/fp-js-kereki#readme",
+  "devDependencies": {
+    "jasmine": "^3.4.0"
+  }
+}
