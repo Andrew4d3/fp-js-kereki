@@ -5,7 +5,9 @@
 > Let's consider a simple, but common situation. You have developed an e-commerce site: the
 > user can fill their shopping cart, and at the end, they must click on a BILL ME button, so
 > their credit card will be charged. However, the user shouldn't click twice (or more) or they
-> would be billed several times. _(In sumary we want the BILL function to be called just once!)_
+> would be billed several times. 
+
+_(In sumary we want the BILL function to be called just once!)_
 
 _From here there are a lot of solutions that are not functional, so we are going to skip them_
 
