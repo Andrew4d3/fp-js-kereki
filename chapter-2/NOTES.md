@@ -15,10 +15,10 @@ _From here there are a lot of solutions that are not functional, so we are going
 > we'll, inspiredly, name once() . This function will receive a function as a parameter and
 > will return a new function, which will work only a single time.
 
-- Example
-- Example Test
+- [Example](https://github.com/Andrew4d3/fp-js-kereki/blob/master/chapter-2/once.js)
+- [Example Test](https://github.com/Andrew4d3/fp-js-kereki/blob/master/chapter-2/once.test.js)
 
-## Sumary
+## Summary
 
 > In this chapter, we've seen a common, simple problem, based on a real-life situation, and
 > after analyzing several usual ways of solving that, we went for a functional thinking solution.
