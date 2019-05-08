@@ -28,3 +28,12 @@ All arguments form the function are inside the `args` array:
 
 Check this example:
 - Using spread operator with arguments
+
+## Functions as Objects
+### A better redux reducer
+In JS we can assign functions to variables, constants or object attributes. Example:
+- A React+Redux reducer
+
+### An unnecessary mistake
+When woriking with callbacks, there's not need to make an explicit call to a different function if that's the only thing you do. Just use the function declaration as a parameter. This is called "Point Free".
+- Example using promises
