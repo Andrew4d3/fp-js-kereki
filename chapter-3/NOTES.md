@@ -37,3 +37,47 @@ In JS we can assign functions to variables, constants or object attributes. Exam
 ### An unnecessary mistake
 When woriking with callbacks, there's not need to make an explicit call to a different function if that's the only thing you do. Just use the function declaration as a parameter. This is called "Point Free".
 - [Example using promises](https://github.com/Andrew4d3/fp-js-kereki/blob/master/chapter-3/pointFree.js)
+
+### Working with methods
+When working with object methods. Doing something like this:
+```
+fetch("some/remote/url").then(myObject.store);
+```
+It won work... Instead of, do something like this:
+```
+fetch("some/remote/url").then(myObject.store.bind(myObject));
+```
+This is a general solution. When dealing with a method, you cannot just assign it; you must
+use .bind( so the correct context will be available.
+
+## Using functions in FP ways
+### Injection - sorting it out
+Let's check the `Array.prototype.sort()`method:
+
+```
+var colors = [
+    "violet",
+    "indigo",
+    "blue",
+    "green",
+    "yellow",
+    "orange",
+    "red"
+];
+colors.sort();
+console.log(colors);
+// ["blue", "green", "indigo", "orange", "red", "violet", "yellow"]
+```
+
+But what if we want to sort word in a different way. For example, using Spanish language rules?
+For such cases, we can use the `String​.prototype​.locale​Compare()` method:
+
+```
+palabras.sort((a, b) => a.localeCompare(b, "es"));
+console.log(palabras);
+// ["mano", "mítico", "musical", "natural", "ñandú", "oasis"]
+```
+**NOTE**: This is a "strategy design" example.
+
+This is a simple example, that you have probably used before -- but it's an FP pattern, after
+all.
