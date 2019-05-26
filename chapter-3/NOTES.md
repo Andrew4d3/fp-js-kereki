@@ -60,7 +60,7 @@ When working with object methods. Doing something like this:
 fetch("some/remote/url").then(myObject.store);
 ```
 
-It won work... Instead of, do something like this:
+It won't work... Instead of, do something like this:
 
 ```
 fetch("some/remote/url").then(myObject.store.bind(myObject));
