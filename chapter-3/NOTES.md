@@ -24,7 +24,7 @@ You can also take the `this` from the outter context, which can be useful at tim
 
 ## Working with arguments
 
-Sometimes it's required to work with a variable number of arguments. Using the express operator is possible to do something like this:
+Sometimes it's required to work with a variable number of arguments. Using the spread operator is possible to do something like this:
 
 ```
 function listArguments2(...args) {
