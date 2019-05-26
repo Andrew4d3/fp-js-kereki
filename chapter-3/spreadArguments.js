@@ -7,4 +7,4 @@ function listArguments(...args) { // All arguments are inside "args" (array)
   somethingElse(...args); // We can pass the same arguments to other function
 }
 
-listArguments2(12, 4, 56); // We don't care the amount of arguments
+listArguments(12, 4, 56); // We don't care the amount of arguments
