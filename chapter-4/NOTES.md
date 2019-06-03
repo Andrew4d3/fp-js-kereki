@@ -230,3 +230,32 @@ let {a, r} = roundFix2(accum, 3.1415);
 accum = a;
 console.log(accum, r); // 0.1415 3
 ```
+
+#### Injecting impure functions
+
+You can separate the "impure parts" of your implementation and inject them into your pure funcitions. For example, this function:
+
+```
+const getRandomFileName = (fileExtension = "") => {
+...
+  for (let i = 0; i < NAME_LENGTH; i++) {
+    namePart[i] = getRandomLetter();
+  }
+...
+};
+```
+The function above is impure because the `getRandomLetter` function is impure. So let's refactor this a little bit:
+
+```
+const getRandomFileName2 = (fileExtension = "", randomLetterFunc) => {
+  const NAME_LENGTH = 12;
+  let namePart = new Array(NAME_LENGTH);
+  for (let i = 0; i < NAME_LENGTH; i++) {
+    namePart[i] = randomLetterFunc();
+  }
+  return namePart.join("") + fileExtension;
+};
+```
+Here we're injecting the `randomLetterFunc`. Now you are probably thinking: "But this doesn't ensure purity because the `randomLetterFunction` can be impure". Yes, but we can inject -for testing purporses- a pure function and that would make this function pure too.
+
+In the end we will have a function that behaves as a pure function for testing and still have its correct behavior when it runs normally.
