@@ -244,6 +244,7 @@ const getRandomFileName = (fileExtension = "") => {
 ...
 };
 ```
+
 The function above is impure because the `getRandomLetter` function is impure. So let's refactor this a little bit:
 
 ```
@@ -256,6 +257,89 @@ const getRandomFileName2 = (fileExtension = "", randomLetterFunc) => {
   return namePart.join("") + fileExtension;
 };
 ```
+
 Here we're injecting the `randomLetterFunc`. Now you are probably thinking: "But this doesn't ensure purity because the `randomLetterFunction` can be impure". Yes, but we can inject -for testing purporses- a pure function and that would make this function pure too.
 
 In the end we will have a function that behaves as a pure function for testing and still have its correct behavior when it runs normally.
+
+### Is your function pure?
+
+You may say a function like this is pure:
+
+```
+const sum3 = (x, y, z) => x + y + z;
+```
+
+But here we're assuming that the parameters recieved are numbers or strings. But what if we try something like this:
+
+```
+let x = {};
+x.valueOf = Math.random;
+let y = 1;
+let z = 2;
+console.log(sum3(x, y, z)); // 3.2034400919849431
+console.log(sum3(x, y, z)); // 3.8537045249277906
+console.log(sum3(x, y, z)); // 3.0833258308458734
+```
+
+It seems we don't have a pure function anymore. In the end, it actually depends on whatever parameters you pass to it! Adding some type checking (TypeScript might come
+in handy) you could at least prevent some cases -- though JS won't ever let you be totally
+sure that your code is always pure!
+
+## Testing - pure versus impure
+
+Impurity in your functions cannot be 100% avoided. Thus, you have to find the ways to structure your code so you can isolate the impure functions.
+When testing your code. You're going to have to deal with pure and impure functions. Writing tests for the first ones can be more challenging than doing so for the last ones.
+
+### Testing pure functions
+
+This is not a problem. In the end, everything comes to:
+
+- Call the function with a given set of arguments
+- Verify that the results match what you expected
+  And that's it! For Example, unit-testing the past `isOldEnough3` function:
+
+```
+describe("isOldEnough", function() {
+  it("is false for people younger than 18", () => {
+    expect(isOldEnough3(1978, 1963)).toBe(false);
+  });
+  it("is true for people older than 18", () => {
+    expect(isOldEnough3(1988, 1965)).toBe(true);
+  });
+  it("is true for people exactly 18", () => {
+    expect(isOldEnough3(1998, 1980)).toBe(true);
+  });
+});
+```
+
+### Testing purified functions
+
+When testing functions that handle some type of state. We need to test the function result as well as the updated state. We also need to be careful with functions performing calculations with float values. Since they might have some side effects caused by loss in precision. Example:
+
+```
+describe("roundFix2", function() {
+  it("should round 3.14159 to 3 if differences are
+    let {a, r} = roundFix2(0.0, 3.14159);
+    expect(a).toBeCloseTo(0.14159);
+    expect(r).toBe(3);
+  });
+  it("should round 2.71828 to 3 if differences are
+    let {a, r} = roundFix2(0.14159, 2.71828);
+    expect(a).toBeCloseTo(-0.14013);
+    expect(r).toBe(3);
+  });
+  it("should round 2.71828 to 2 if differences are
+    let {a, r} = roundFix2(-0.14013, 2.71828);
+    expect(a).toBeCloseTo(0.57815);
+    expect(r).toBe(2);
+  });
+  it("should round 3.14159 to 4 if differences are
+    let {a, r} = roundFix2(0.57815, 3.14159);
+    expect(a).toBeCloseTo(-0.28026);
+    expect(r).toBe(4);
+  });
+});
+```
+
+Notice how we're using the `toBeCloseTo` assert method to verify we are meeting the required proximity.
