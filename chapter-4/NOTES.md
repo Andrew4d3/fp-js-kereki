@@ -343,3 +343,78 @@ describe("roundFix2", function() {
 ```
 
 Notice how we're using the `toBeCloseTo` assert method to verify we are meeting the required proximity.
+
+### Testing impure functions
+
+One way of testing impure functions is by doing some _white box testing_. We do this when we have some knowledge about how the function that we are testing works. For this, we can use "mocks" and "spys" to alter and examinate our functions behaviours. Exmaple:
+
+```
+describe("getRandomLetter", function() {
+  it("returns A for values close to 0", () => {
+    spyOn(Math, "random").and.returnValue(0.0001);
+    let letterSmall = getRandomLetter();
+    expect(Math.random).toHaveBeenCalled();
+    expect(letterSmall).toBe("A");
+  });
+
+  it("returns Z for values close to 1", () => {
+    spyOn(Math, "random").and.returnValues(0.98, 0.999);
+    let letterBig1 = getRandomLetter();
+    let letterBig2 = getRandomLetter();
+    expect(Math.random).toHaveBeenCalledTimes(2);
+    expect(letterBig1).toBe("Z");
+    expect(letterBig2).toBe("Z");
+  });
+
+  it("returns a middle letter for values around 0.5", () => {
+    spyOn(Math, "random").and.returnValue(0.49384712);
+    let letterMiddle = getRandomLetter();
+    expect(Math.random.calls.count()).toEqual(1);
+    expect(letterMiddle).toBeGreaterThan("G");
+    expect(letterMiddle).toBeLessThan("S");
+  });
+});
+```
+
+- In the first example we are "spying" the `Math.random` function and we also mocking its result to `0.0001`. Thus, this test will verify if such function gets called. Aditionally, our `getRandomLetter` is expected to return an "A" value for entries close to 0.0001, so we're making that assertion too.
+- In the second example, we are doing pretty much the same as the first example. But this time, we are mocking two consecutive `Math.random` results (0.98, 0.999). With this, we should expected to receive "Z" values for entries close to 1.
+- In the last example, we do something similiar but for an entry close to 0.5. Since we cannot exactly predict which letter will result. We have to set our assertions to be within a range of "G" and "S".
+
+If we want to test an impure function without mocking, that's way harder. One way is not to test the result's value but its properties instead. Example:
+
+```
+describe("getRandomFileName, with an impure getRandomLetter function", function() {
+  it("generates 12 letter long names", () => {
+    for (let i = 0; i < 100; i++) {
+      expect(getRandomFileName().length).toBe(12);
+    }
+  });
+  it("generates names with letters A to Z, only", () => {
+    for (let i = 0; i < 100; i++) {
+      let n = getRandomFileName();
+      for (j = 0; j < n.length; n++) {
+        expect(n[j] >= "A" && n[j] <= "Z").toBe(true);
+      }
+    }
+  });
+  it("includes the right extension if provided", () => {
+    let fileName1 = getRandomFileName(".pdf");
+    expect(fileName1.length).toBe(16);
+    expect(fileName1.endsWith(".pdf")).toBe(true);
+  });
+  it("doesn't include any extension if not provided", () => {
+    let fileName2 = getRandomFileName();
+    expect(fileName2.length).toBe(12);
+    expect(fileName2.includes(".")).toBe(false);
+  });
+});
+```
+
+Here we're testing the result properties from the `getRandomFileName`:
+
+- We know we are always going to get a 12-length string
+- We know that string will always have letters from "A" to "Z" (not special characters allowed)
+- We know that if we provide a file extension, the file name returned should end with that extension.
+- And we should get the opposite from before if not extension is provided.
+
+Based on these properties, we can design our assertions for such impure function.
