@@ -20,7 +20,7 @@ and match as it best suits you
 *NOTE*: FP and OOP are not enemies. You can use both together and you should!
 
 ## Why use Functional Programming?
-We agree our coud should be:
+We agree our code should be:
 - **Modular**: In FP, the goal is writing separate independent functions, which are joined
 together to produce the final results.
 - **Understandable (easy to read)**: Programs written in functional style usually tend to be cleaner, shorter, and easier to understand.
