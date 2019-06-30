@@ -239,3 +239,68 @@ const delinquentIds2 = serviceResult.accountsData
   .filter(v => v.balance < 0)
   .map(v => v.id);
 ```
+
+## Searching an array
+
+Sometimes, instead of filtering all the elements of an array, you want to find an element (or its index) that satisfies a given predicate. For such cases we have `find` and `findIndex`. Example:
+
+```
+const markers = [
+  { name: "UY", lat: -34.9, lon: -56.2 },
+  { name: "AR", lat: -34.6, lon: -58.4 },
+  { name: "BR", lat: -15.8, lon: -47.9 },
+  { name: "BO", lat: -16.5, lon: -68.1 }
+];
+
+let brazilData = markers.find(v => v.name === "BR");
+// {name:"BR", lat:-15.8, lon:-47.9}
+```
+
+And if we want to get the index:
+
+```
+let brazilIndex = markers.findIndex(v => v.name === "BR"); // 2
+```
+
+### A special search case
+
+What if we want to find a `NaN` value. Probably, you could think to do something like this:
+
+```
+[1, 2, NaN, 4].findIndex(x => x === NaN); // -1
+```
+
+But you get a -1! What happened? This is one of those weird stuff of Javascript where `NaN == NaN` is false. So you have to use the helper `isNaN` for such situations.
+
+```
+[1, 2, NaN, 4].findIndex(x => isNaN(x)); // 2
+```
+
+## Higher level predicates - some, every
+
+Sometimes we want to evaluate if each single element of an array (or at least one of them) satisfies a given condition. For such situations we have `every` and `some`. For example, we can check if all the elements of an array of numbers are higher than 2 by doing this.
+
+```
+let numbersArray = [3, 4, 5];
+console.log(numbersArray.every(x => x > 2)); // true
+numbersArray = [3, 4, 5, 1];
+console.log(numbersArray.every(x => x > 2)); // false
+```
+
+But if we just want to know if at least one meets the criteria we can use `some` instead.
+
+```
+console.log(numbersArray.some(x => x > 2)); // true
+```
+
+## Summary
+
+Remember, you can use:
+
+- `reduce` and `reduceRight`: to get a single result from an
+  array
+- `map`: to apply a function to each element of an array
+- `forEach`: to simplify looping.
+- `filter`: to pick elements from an array.
+- `find` and `findIndex`: to serch in an array.
+- `every` and `some`: to verify general logic conditions.
