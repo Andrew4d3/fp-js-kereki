@@ -122,6 +122,62 @@ const memoize4 = fn => {
     };
 };
 ```
+#### Memoization testing
+The best way to test a memoization function is to assert the number of calls the fib function receives for different input values.
 
+```
+describe("the memoized fib", function () {
+    beforeEach(() => {
+        fib = memoize(fib);
+    });
+    it("should produce same results", () => {
+        expect(fib(0)).toBe(0);
+        expect(fib(1)).toBe(1);
+        expect(fib(5)).toBe(5);
+        expect(fib(8)).toBe(21);
+        expect(fib(10)).toBe(55);
+    });
+    it("shouldn't repeat calculations", () => {
+        spyOn(window, "fib").and.callThrough();
+        expect(fib(6)).toBe(8); // 11 calls
+        expect(fib).toHaveBeenCalledTimes(11);
+        expect(fib(5)).toBe(5); // 1 call
+        expect(fib(4)).toBe(3); // 1 call
+        expect(fib(3)).toBe(2); // 1 call
+        expect(fib).toHaveBeenCalledTimes(14);
+    });
+});
+```
+For this case, the first fib function is called recursively 11 times  (it's not cached). But the subsecuent executions were called just once. This because the executions with `fib(5)`, `fib(4)` and `fib(3)` were already executed and respectively cached when `fib(6)`was called.
 
+## Altering functions
+Here we're going to modify what a function does.
 
+### Doing things once, revisited
+The original once function goes like this:
+```
+const once = func => {
+    let done = false;
+    return (...args) => {
+        if (!done) {
+            done = true;
+            func(...args);
+        }
+    };
+};
+```
+This implementation is OK. The only problem is the function won't return anything after the first call. What if we want to return the value from the first call, without executing the function again? We can do something like this:
+```
+const once2 = func => {
+    let done = false;
+    let result;
+    return (...args) => {
+        if (!done) {
+            done = true;
+            result = func(...args);
+        }
+        return result;
+    };
+};
+```
+_TODO: CONTINUE HERE_
