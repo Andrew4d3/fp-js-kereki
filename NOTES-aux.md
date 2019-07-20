@@ -180,4 +180,58 @@ const once2 = func => {
     };
 };
 ```
-_TODO: CONTINUE HERE_
+Now, we will always return something.
+
+We can also create a different version, where a second function is executed after the first call:
+
+```
+const onceAndAfter = (f, g) => {
+    let done = false;
+    return (...args) => {
+        if (!done) {
+            done = true;
+            return f(...args);
+        } else {
+            return g(...args);
+        }
+    };
+};
+```
+Using functions as first order objects, we can rewrite this in a shorter way by storing the function we need to execute inside a variable:
+```
+const onceAndAfter2 = (f, g) => {
+    let toCall = f;
+    return (...args) => {
+        let result = toCall(...args);
+        toCall = g;
+        return result;
+    };
+};
+```
+This is an example. The door will "squeak" at the first call, and "creak" at the second one:
+```
+const squeak = (x) => console.log(x, "squeak!!");
+const creak = (x) => console.log(x, "creak!!");
+const makeSound = onceAndAfter2(squeak, creak);
+makeSound("door"); // "door squeak!!"
+makeSound("door"); // "door creak!!"
+makeSound("door"); // "door creak!!"
+makeSound("door"); // "door creak!!"
+```
+### Logically negating a function
+Let's supose we want to implement the oppsite of the `filter` method. We might rewrite the predicate and that would do the work. But a fancier solution will be to create a High-order function that negates the predicate.
+```
+const not = fn => (...args) => !fn(...args);
+```
+Now we can use this function like this:
+```
+const isNegativeBalance = v => v.balance < 0;
+// ...many lines later...
+const notDelinquent3 = serviceResult.accountsData.filter(
+    not(isNegativeBalance)
+);
+```
+Another solution would be to create a new filter method, called `filterNot`. We may as well add this new method to the `Array.prototype`.
+```
+const filterNot = arr => fn => arr.filter(not(fn));
+```
