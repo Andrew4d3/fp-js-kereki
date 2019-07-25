@@ -123,3 +123,63 @@ myFetch("a/second/url")
     .catch(/* on error */);
 ```
 Here, we're performing `fetch` requests with a fixed second parameter (options) and always sending a different URL.
+
+_Implementing partial application is very complex to understand so just go and use the lodash implementation._
+
+## Partial currying
+
+"Partial Currying" is very similar to plain "Currying". The only difference is that this time it's possible to accept more that one argument at once. Example:
+
+```
+const echoArguments = (a, b, c, d) => [a, b, c, d];
+
+const curriedEchoArguments = partialCurry(echoArguments);
+
+const result = curriedEchoArguments(a)(b, c)(d); // b and c being sent at the same time
+```
+In this case, in the second call, we're sending two parameters at the same time: `(b, c)`. We could also send the first three, first two, last three or whichever combination we want. Implementing this using only arrow function could be very difficult. Since we have to define any possible combination of arguments. But using the `bind` method is way easier.
+
+### Partial currying with bind()
+
+This is very similar to what we did with normal currying. The `bind` method allows to set multiple arguments at once. So we're going to rely on that feature:
+
+```
+const partialCurryingByBind = fn =>
+    fn.length === 0
+        ? fn()
+        : (...pp) => partialCurryingByBind(fn.bind(null, ...pp));
+```
+And the example works as usual. This time, Notice how 6 and 5 are being sent at the same time:
+
+```
+const make3 = (a, b, c) => String(100 * a + 10 * b + c);
+const f1 = partialCurryingByBind(make3);
+const f2 = f1(6, 5); // f2 is a function, that fixes make3's first two arguments
+const f3 = f2(8); // "658" is calculated, since there are no more parameters to fix
+```
+And testing is easy too:
+```
+const make3 = (a, b, c) => String(100 * a + 10 * b + c);
+describe("with partialCurryingByBind", function () {
+    it("you could fix arguments in several steps", () => {
+        const make3a = partialCurryingByBind(make3);
+        const make3b = make3a(1, 2);
+        const make3c = make3b(3);
+        expect(make3c).toBe(make3(1, 2, 3));
+    });
+    it("you could fix arguments in a single step", () => {
+        const make3a = partialCurryingByBind(make3);
+        const make3b = make3a(10, 11, 12);
+        expect(make3b).toBe(make3(10, 11, 12));
+    });
+    it("you could fix ALL the arguments", () => {
+        const make3all = partialCurryingByBind(make3);
+        expect(make3all(20, 21, 22)).toBe(make3(20, 21, 22));
+    });
+    it("you could fix one argument at a time", () => {
+        const make3one = partialCurryingByBind(make3)(30)(31)(32);
+        expect(make3one).toBe(make3(30, 31, 32));
+    });
+});
+```
+
