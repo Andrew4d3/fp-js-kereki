@@ -183,3 +183,18 @@ describe("with partialCurryingByBind", function () {
 });
 ```
 
+## Final thoughts
+
+### Parameter order
+Sometimes we find hard to apply currying or partial aplications to some functions. Since the parameters order from the original function doesn't meet the criteria we require. That's why we need to implement some high order function that re-organizes our arguments in the way we want them.
+
+```
+const flipArgumentsOrder = (fn) => (...args) => fn(...args.reverse());
+
+const echo = (a,b) => [a, b];
+const echoInverted = flipArgumentsOrder(echo);
+
+console.log(echoInverted(1,2)); // [2, 1]
+```
+
+_I'm not going to give a further example of this because applying partial application you can resolve this in a better way_
