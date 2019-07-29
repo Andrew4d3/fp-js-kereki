@@ -93,3 +93,85 @@ pipeline([
 ```
 
 Try not to overuse the logging wrapper. Just use it in functions where you want to do some debugging or logging.
+
+### Chaining and fluent interfaces
+
+Some similar concept to pipelining is the concept of "method chaining". Consider the `moment` library when you can see things like:
+
+```
+const customDate = moment()
+  .add(2, "days")
+  .subtract(2, "hours")
+  .add(2, "seconds")
+  .toISOString();
+```
+
+This happens because all the setters methods return `this` which leads to a more declarative way to code. Since now it's possible to use any instance method right away.
+
+The easyiest way to implement this is by returning the `this` object in every setter method. But if you don't want to go through all those methods (maybe you have a lot!) you can create your own "chainigy" function that takes any method that returns `undefined` and change it to return `this`.
+
+For this, we can use a Proxy instance. Example:
+
+```
+const getHandler = {
+  get(target, property, receiver) {
+    if (typeof target[property] === "function") {
+      // requesting a method? return a wrapped version
+      return (...args) => {
+        const result = target[property](...args);
+        return result === undefined ? target : result;
+      };
+    } else {
+      // an attribute was requested - just return it
+      return target[property];
+    }
+  }
+};
+
+const chainify = obj => new Proxy(obj, getHandler);
+```
+
+Most of the code is self-explanatory. Take into account that the `receiver` argument is the proxified instance. Pretty much equivalent to returning `this` in your normal class.
+
+Example:
+
+```
+class MyHome {
+  constructor(country, city, address) {
+    this.country = country;
+    this.city = city;
+    this.address = address;
+  }
+
+  getCountry() {
+    return this.country;
+  }
+
+  getCity() {
+    return this.city;
+  }
+
+  getAddress() {
+    return this.address;
+  }
+
+  setCountry(country) {
+    this.country = country;
+  }
+
+  setCity(city) {
+    this.city = city;
+  }
+
+  setAddress(address) {
+    this.address = address;
+  }
+}
+
+const myHome = chainify(new MyHome("Venezuela", "Caracas", "El Valle 123"));
+
+myHome
+  .setCountry("Chile")
+  .setCity("Santiago")
+  .setAddress("Eleuterio 123"); // We're chainning methods here!
+```
