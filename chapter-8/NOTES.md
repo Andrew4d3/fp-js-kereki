@@ -175,3 +175,57 @@ myHome
   .setCity("Santiago")
   .setAddress("Eleuterio 123"); // We're chainning methods here!
 ```
+
+## Composing
+
+Composing is the oposite of pipelining. While in pipelining you go from left to right, in composining you go from right to left. As you may imagine, the implementation is pretty much the same, execpt for the fact that now we reverse the input array.
+
+```
+const compose = (...fns) => pipeline(...(fns.reverse()));
+```
+
+The examples are similar to the ones with pipelining, but now the input array has an inverted order. You might wonder, "why do we need a function that does exactly the same but different?" and the answer is: It's up to you to decide whether to use one or another one!. Some people would prefer to go with this way rather than the other one. Since you get the focus of the final step right away.
+
+## Testing composed functions
+
+As usual, testing is quite simple:
+
+```
+describe("pipeline", function () {
+    beforeEach(() => {
+        fn1 = () => { };
+        fn2 = () => { };
+        fn3 = () => { };
+        fn4 = () => { };
+    });
+    it("works with a single function", () => {
+        spyOn(window, "fn1").and.returnValue(11);
+        const pipe = pipeline(fn1);
+        const result = pipe(60);
+        expect(fn1).toHaveBeenCalledTimes(1);
+        expect(fn1).toHaveBeenCalledWith(60);
+        expect(result).toBe(11);
+    });
+    // we omit here tests for 2 functions,
+    // which are similar to those for pipeTwo()
+    it("works with 4 functions, multiple arguments", () => {
+        spyOn(window, "fn1").and.returnValue(111);
+        spyOn(window, "fn2").and.returnValue(222);
+        spyOn(window, "fn3").and.returnValue(333);
+        spyOn(window, "fn4").and.returnValue(444);
+        const pipe = pipeline(fn1, fn2, fn3, fn4);
+        const result = pipe(24, 11, 63);
+        expect(fn1).toHaveBeenCalledTimes(1);
+        expect(fn2).toHaveBeenCalledTimes(1);
+        expect(fn3).toHaveBeenCalledTimes(1);
+        expect(fn4).toHaveBeenCalledTimes(1);
+        expect(fn1).toHaveBeenCalledWith(24, 11, 63);
+        expect(fn2).toHaveBeenCalledWith(111);
+        expect(fn3).toHaveBeenCalledWith(222);
+        expect(fn4).toHaveBeenCalledWith(333);
+        expect(result).toBe(444);
+    });
+});
+```
+
+And the same applies to composing.
