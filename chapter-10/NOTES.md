@@ -99,4 +99,136 @@ Now we know how to freeze and copy any (frozen) object. And we can work on this 
 4. Freeze the new copy
 5. Return it as the function result.
 
-But doing all this can become cumbersome and tedios. So we have to find a beeter way.
+But doing all this can become cumbersome and tedious. So we have to find a beeter way.
+
+### Getting a property
+
+As I mentioned, going through all the steps of copying and freezing objects and properties might become troublesome. A good way to resolve this is by implementing another helper function where we can obtain copies of any property we want.
+
+```
+const getByPath = (arr, obj) => {
+    if (arr[0] in obj) {
+        return arr.length > 1
+            ? getByPath(arr.slice(1), obj[arr[0]])
+            : deepCopy(obj[arr[0]]);
+    } else {
+        return undefined;
+    }
+};
+```
+
+Let's see how we can use it:
+
+```
+let myObj3 = {
+    d: 22,
+    m: 9,
+    o: { c: "MVD", i: "UY", f: { a: 56 } }
+};
+
+deepFreeze(myObj3);
+
+console.log(getByPath(["d"], myObj3)); // 22
+console.log(getByPath(["o"], myObj3)); // {c: "MVD", i: "UY", f: {a: 56}}
+console.log(getByPath(["o", "c"], myObj3)); // "MVD"
+console.log(getByPath(["o", "f", "a"], myObj3)); // 56
+````
+We can also check that returned objects are not frozen.
+```
+let fObj = getByPath(["o", "f"], myObj3);
+console.log(fObj); // {a: 56}
+fObj.a = 9999;
+console.log(fObj); // {a: 9999} -- it's not frozen
+```
+
+## Persistent data structures
+
+Cloning a whole object when we only need to update a couple of properties doesn't seem to be efficient. Imagine for a second, we have a payload object like this:
+
+```
+const payload = {
+    foo: {
+        a: "a",
+        b: "c",
+        c: "c"
+    },
+    bar: {
+        d: "",
+        e: {
+            e1: "e1"
+        },
+        f: [1,2,3]
+    }
+}
+```
+And the only thing we require is to update the path `payload.bar.e.e1`. If we cloned the entire object, we would be cloning instances that we're not even touching, like the paths: `payload.foo` and `payload.bar.f`. That's highly unefficient! We need to find a better way.
+
+### Updating objects
+
+Let's implement a new helper function called `setIn`. This function will clone the neccessary instances from our object and let those ones we don't touch unaltered.
+
+```
+const setIn = (arr, val, obj) => {
+    const newObj = Number.isInteger(arr[0]) ? [] : {};
+    Object.keys(obj).forEach(k => {
+        newObj[k] = k !== arr[0] ? obj[k] : null;
+    });
+    newObj[arr[0]] =
+        arr.length > 1 ? setIn(arr.slice(1), val, obj[arr[0]]) : val;
+    return newObj;
+};
+```
+
+Let's test this helper function:
+
+```
+let myObj1 = {
+    a: 111,
+    b: 222,
+    c: 333,
+    d: {
+        e: 444,
+        f: 555,
+        g: {
+            h: 666,
+            i: 777
+        },
+        j: [{ k: 100 }, { k: 200 }, { k: 300 }]
+    }
+};
+
+let myObj2 = setIn(["d", "f"], 88888, myObj1);
+/*
+{
+    a: 111,
+    b: 222,
+    c: 333,
+    d: {
+        e: 444,
+        f: 88888, // This has changed
+        g: {h: 666, i: 777},
+        j: [{k: 100}, {k: 200}, {k: 300}]
+    }
+}
+*/
+console.log(myObj.d === myObj2.d); // false
+console.log(myObj.d.f === myObj2.d.f); // false
+console.log(myObj.d.g === myObj2.d.g); // true (because it's out of our path)
+```
+
+In the same fashion, we can create a `deleteIn` function, which will delete any desired property path. The implementations is pretty much the same as `setIn` with the only difference being: we skip to create anything on the entered path.
+
+```
+const deleteIn = (arr, obj) => {
+    const newObj = Number.isInteger(arr[0]) ? [] : {};
+    Object.keys(obj).forEach(k => {
+        if (k !== arr[0]) {
+            newObj[k] = obj[k];
+        }
+    });
+    if (arr.length > 1) {
+        newObj[arr[0]] = deleteIn(arr.slice(1), obj[arr[0]]);
+    }
+    return newObj;
+};
+```
